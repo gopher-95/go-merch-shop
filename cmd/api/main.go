@@ -14,4 +14,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("ошибка запуска миграций: %v", err)
 	}
+
+	_, err = repository.NewDB(cfg.DatabaseURLString())
+	if err != nil {
+		log.Fatalf("ошибка соединения с бд: %v", err)
+	}
 }
