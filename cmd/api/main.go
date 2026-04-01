@@ -19,4 +19,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("ошибка соединения с бд: %v", err)
 	}
+
 }

@@ -18,18 +18,6 @@ func NewStorage(db *sql.DB) *Storage {
 	}
 }
 
-func (storage *Storage) CreateUser(ctx context.Context, userName string, passwordHash string) (int, error) {
-	query := "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id"
-
-	var id int
-
-	err := storage.db.QueryRowContext(ctx, query, userName, passwordHash).Scan(&id)
-	if err != nil {
-		return 0, fmt.Errorf("ошибка получения id добавленного пользователя: %w", err)
-	}
-	return id, nil
-}
-
 func (storage *Storage) FindByUserName(ctx context.Context, username string) (*models.User, error) {
 	query := "SELECT id, username, coins, created_at FROM users WHERE username = $1 "
 
@@ -52,4 +40,16 @@ func (storage *Storage) FindByUserName(ctx context.Context, username string) (*m
 	}
 
 	return &user, nil
+}
+
+func (storage *Storage) CreateUser(ctx context.Context, userName string, passwordHash string) (int, error) {
+	query := "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id"
+
+	var id int
+
+	err := storage.db.QueryRowContext(ctx, query, userName, passwordHash).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("ошибка получения id добавленного пользователя: %w", err)
+	}
+	return id, nil
 }
