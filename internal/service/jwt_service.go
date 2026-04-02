@@ -7,17 +7,17 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type JWTService struct {
+type JWT struct {
 	secret string
 }
 
-func NewJWTService(secret string) *JWTService {
-	return &JWTService{
+func NewJWT(secret string) *JWT {
+	return &JWT{
 		secret: secret,
 	}
 }
 
-func (jwtServ *JWTService) GenerateToken(userID int, username string) (string, error) {
+func (j *JWT) GenerateToken(userID int, username string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":  userID,
 		"username": username,
@@ -25,7 +25,7 @@ func (jwtServ *JWTService) GenerateToken(userID int, username string) (string, e
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(jwtServ.secret))
+	tokenString, err := token.SignedString([]byte(j.secret))
 	if err != nil {
 		return "", fmt.Errorf("ошибка генерации токена: %w", err)
 	}

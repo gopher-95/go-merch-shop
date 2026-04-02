@@ -15,7 +15,7 @@ func NewDB(databaseURL string) (*sql.DB, error) {
 	}
 
 	db.SetMaxOpenConns(50)
-	db.SetConnMaxIdleTime(25)
+	db.SetMaxIdleConns(25)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
 	err = db.Ping()

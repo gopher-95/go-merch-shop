@@ -9,34 +9,38 @@ import (
 )
 
 type Config struct {
-	DB_USER     string
-	DB_PASSWORD string
-	DB_HOST     string
-	DB_PORT     string
-	DB_NAME     string
-	DB_SSLMODE  string
+	DBUser     string
+	DBPassword string
+	DBHost     string
+	DBPort     string
+	DBName     string
+	DBSSLMode  string
+	JWTSecret  string
+	ServerPort string
 }
 
-// Строка для подключения к бд ...
+// Строка для подключения к бд
 func (cfg *Config) DatabaseURLString() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.DB_USER, cfg.DB_PASSWORD, cfg.DB_HOST, cfg.DB_PORT, cfg.DB_NAME, cfg.DB_SSLMODE)
+		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName, cfg.DBSSLMode)
 }
 
-// Загрузка конфига ...
+// Загрузка конфига
 func LoadConf() *Config {
 	_ = godotenv.Load()
 
 	config := &Config{
-		DB_USER:     getEnv("DB_USER", "postgres"),
-		DB_PASSWORD: getEnv("DB_PASSWORD", ""),
-		DB_HOST:     getEnv("DB_HOST", "localhost"),
-		DB_PORT:     getEnv("DB_PORT", "5432"),
-		DB_NAME:     getEnv("DB_NAME", "merch-shop"),
-		DB_SSLMODE:  getEnv("DB_SSLMODE", "disable"),
+		DBUser:     getEnv("DB_USER", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", ""),
+		DBHost:     getEnv("DB_HOST", "localhost"),
+		DBPort:     getEnv("DB_PORT", "5432"),
+		DBName:     getEnv("DB_NAME", "merch-shop"),
+		DBSSLMode:  getEnv("DB_SSLMODE", "disable"),
+		JWTSecret:  getEnv("JWT_SECRET", ""),
+		ServerPort: getEnv("SERVER_PORT", "8080"),
 	}
 
-	if config.DB_PASSWORD == "" {
+	if config.DBPassword == "" {
 		log.Fatal("password is incorrect")
 	}
 

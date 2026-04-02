@@ -4,26 +4,27 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 
 	"github.com/gopher-95/go-merch-shop/internal/models"
 )
 
-type Storage struct {
+type Repository struct {
 	db *sql.DB
 }
 
-func NewStorage(db *sql.DB) *Storage {
-	return &Storage{
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{
 		db: db,
 	}
 }
 
-func (storage *Storage) FindByUserName(ctx context.Context, username string) (*models.User, error) {
-	query := "SELECT id, username, coins, created_at FROM users WHERE username = $1 "
+func (r *Repository) FindByUsername(ctx context.Context, username string) (*models.User, error) {
+	query := "SELECT id, username, password_hash, coins, created_at FROM users WHERE username = $1 "
 
 	var user models.User
 
-	err := storage.db.QueryRowContext(ctx, query, username).Scan(
+	err := r.db.QueryRowContext(ctx, query, username).Scan(
 		&user.ID,
 		&user.UserName,
 		&user.PasswordHash,
@@ -38,16 +39,16 @@ func (storage *Storage) FindByUserName(ctx context.Context, username string) (*m
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения пользователя по username: %w", err)
 	}
-
 	return &user, nil
 }
 
-func (storage *Storage) CreateUser(ctx context.Context, userName string, passwordHash string) (int, error) {
+func (r *Repository) CreateUser(ctx context.Context, username string, passwordHash string) (int, error) {
+	log.Printf("🆕 CreateUser: creating %s", username)
 	query := "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id"
 
 	var id int
 
-	err := storage.db.QueryRowContext(ctx, query, userName, passwordHash).Scan(&id)
+	err := r.db.QueryRowContext(ctx, query, username, passwordHash).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("ошибка получения id добавленного пользователя: %w", err)
 	}

@@ -3,32 +3,36 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/gopher-95/go-merch-shop/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserRepository interface {
-	CreateUser(ctx context.Context, userName string, passwordHash string) (int, error)
-	FindByUserName(ctx context.Context, username string) (*models.User, error)
-}
-
+// Сервис авторизации
 type AuthService struct {
-	userRepo UserRepository
-	jwt      *JWTService
+	storage UserStorage
+	jwt     *JWT
 }
 
-func NewAuthService(userRepo UserRepository, jwt *JWTService) *AuthService {
+// Конструктор сервиса авторизации
+func NewAuthService(storage UserStorage, jwt *JWT) *AuthService {
 	return &AuthService{
-		userRepo: userRepo,
-		jwt:      jwt,
+		storage: storage,
+		jwt:     jwt,
 	}
 }
 
-// Фнукция возвращает токен
-func (authServ *AuthService) Authenticate(ctx context.Context, userName, password string) (string, error) {
+type UserStorage interface {
+	CreateUser(ctx context.Context, username string, passwordHash string) (int, error)
+	FindByUsername(ctx context.Context, username string) (*models.User, error)
+}
 
-	user, err := authServ.userRepo.FindByUserName(ctx, userName)
+// Фнукция возвращает токен
+func (a *AuthService) Login(ctx context.Context, username, password string) (string, error) {
+
+	log.Printf("🔵 Login attempt: username=%s", username)
+	user, err := a.storage.FindByUsername(ctx, username)
 	if err != nil {
 		return "", fmt.Errorf("ошибка поиска пользователя: %w", err)
 	}
@@ -39,12 +43,12 @@ func (authServ *AuthService) Authenticate(ctx context.Context, userName, passwor
 			return "", fmt.Errorf("ошибка хеширования пароля: %w", err)
 		}
 
-		userID, err := authServ.userRepo.CreateUser(ctx, userName, hashedPassword)
+		userID, err := a.storage.CreateUser(ctx, username, hashedPassword)
 		if err != nil {
 			return "", fmt.Errorf("ошибка создания пользователя: %w", err)
 		}
 
-		token, err := authServ.jwt.GenerateToken(userID, userName)
+		token, err := a.jwt.GenerateToken(userID, username)
 		if err != nil {
 			return "", fmt.Errorf("не удалось создать токен для пользователя: %w", err)
 		}
@@ -56,7 +60,7 @@ func (authServ *AuthService) Authenticate(ctx context.Context, userName, passwor
 		return "", fmt.Errorf("неверный пароль")
 	}
 
-	token, err := authServ.jwt.GenerateToken(user.ID, user.UserName)
+	token, err := a.jwt.GenerateToken(user.ID, user.UserName)
 	if err != nil {
 		return "", fmt.Errorf("ошибка генерации токена: %w", err)
 	}

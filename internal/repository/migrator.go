@@ -17,12 +17,20 @@ func RunMigrations(databaseURL string) error {
 		return fmt.Errorf("ошибка создания мигратора: %w", err)
 	}
 
+	defer m.Close()
+
 	err = m.Up()
-	if err != nil && err != migrate.ErrNoChange {
+	if err != nil {
+		if err == migrate.ErrNoChange {
+			log.Println("нет новых миграций")
+			return nil
+		}
+
 		return fmt.Errorf("ошибка применения миграций: %w", err)
 	}
 
 	log.Println("все миграции успешно применены")
 
 	return nil
+
 }

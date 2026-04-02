@@ -11,8 +11,8 @@ type User struct {
 }
 
 type AuthRequest struct {
-	UserNameReq string `json:"user_name_req"`
-	Password    string `json:"password"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type AuthResponse struct {
