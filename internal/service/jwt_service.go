@@ -25,10 +25,30 @@ func (j *JWT) GenerateToken(userID int, username string) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(j.secret))
+	signedToken, err := token.SignedString([]byte(j.secret))
 	if err != nil {
 		return "", fmt.Errorf("ошибка генерации токена: %w", err)
 	}
 
-	return tokenString, nil
+	return signedToken, nil
+}
+
+func (j *JWT) getSecret(token *jwt.Token) (interface{}, error) {
+	return []byte(j.secret), nil
+}
+
+func (j *JWT) Validate(tokenString string) (int, error) {
+	claims := jwt.MapClaims{}
+
+	token, err := jwt.ParseWithClaims(tokenString, &claims, j.getSecret)
+	if err != nil || !token.Valid {
+		return 0, fmt.Errorf("невалидный токен: %w", err)
+	}
+
+	userIDGFloat, ok := claims["user_id"].(float64)
+	if !ok {
+		return 0, fmt.Errorf("user_id не найден в токене")
+	}
+
+	return int(userIDGFloat), nil
 }

@@ -12,3 +12,7 @@ var MerchCatalog = map[string]int{
 	"wallet":     50,
 	"pink-hoody": 500,
 }
+
+type Inventory struct {
+	
+}

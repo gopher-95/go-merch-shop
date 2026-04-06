@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gopher-95/go-merch-shop/internal/config"
 	"github.com/gopher-95/go-merch-shop/internal/handlers"
+	"github.com/gopher-95/go-merch-shop/internal/middleware"
 	"github.com/gopher-95/go-merch-shop/internal/repository"
 	"github.com/gopher-95/go-merch-shop/internal/server"
 	"github.com/gopher-95/go-merch-shop/internal/service"
@@ -21,29 +22,38 @@ func main() {
 		log.Fatalf("ошибка запуска миграций: %v", err)
 	}
 
-	// Создаем соединение с бд
+	//  Соединение с бд
 	db, err := repository.NewDB(cfg.DatabaseURLString())
 	if err != nil {
 		log.Fatalf("ошибка соединения с бд: %v", err)
 	}
 
-	// Создаем репозиторный слой
+	// Репозиторный слой
 	repo := repository.NewRepository(db)
 
-	// Создаем JWT
+	// Сервисный слой
 	jwt := service.NewJWT(cfg.JWTSecret)
+	authService := service.NewAuthService(repo, jwt)
+	buyService := service.NewBuyService(repo)
 
-	// Создаем сервисный слой
-	service := service.NewAuthService(repo, jwt)
+	// HTTP слой
+	authHandler := handlers.NewAuthHanlder(authService)
+	buyHandler := handlers.NewBuyHandler(buyService)
 
-	// Создаем слой HTTP
-	authHandler := handlers.NewAuthHanlder(service)
+	// MiddleWare
+	authMiddleware := middleware.NewAuthMiddleware(jwt)
 
-	// Создаем роутер
+	// Роутер
 	router := chi.NewRouter()
 
-	// Регистрируем маршрут
+	// Маршрут без авторизации
 	router.Post("/api/auth", authHandler.Login)
+
+	// Маршрут с авторизацией
+	router.Group(func(r chi.Router) {
+		r.Use(authMiddleware.Handler)
+		r.Get("/api/buy/{item}", buyHandler.BuyMerch)
+	})
 
 	// Запускаем сервер
 	server := server.NewServer(cfg.ServerPort, router)

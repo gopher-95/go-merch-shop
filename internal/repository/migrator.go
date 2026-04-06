@@ -16,7 +16,7 @@ func RunMigrations(databaseURL string) error {
 	if err != nil {
 		return fmt.Errorf("ошибка создания мигратора: %w", err)
 	}
-
+	
 	defer m.Close()
 
 	err = m.Up()

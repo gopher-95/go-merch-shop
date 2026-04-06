@@ -29,10 +29,10 @@ type UserStorage interface {
 }
 
 // Фнукция возвращает токен
-func (a *AuthService) Login(ctx context.Context, username, password string) (string, error) {
+func (s *AuthService) Login(ctx context.Context, username, password string) (string, error) {
 
 	log.Printf("🔵 Login attempt: username=%s", username)
-	user, err := a.storage.FindByUsername(ctx, username)
+	user, err := s.storage.FindByUsername(ctx, username)
 	if err != nil {
 		return "", fmt.Errorf("ошибка поиска пользователя: %w", err)
 	}
@@ -43,12 +43,12 @@ func (a *AuthService) Login(ctx context.Context, username, password string) (str
 			return "", fmt.Errorf("ошибка хеширования пароля: %w", err)
 		}
 
-		userID, err := a.storage.CreateUser(ctx, username, hashedPassword)
+		userID, err := s.storage.CreateUser(ctx, username, hashedPassword)
 		if err != nil {
 			return "", fmt.Errorf("ошибка создания пользователя: %w", err)
 		}
 
-		token, err := a.jwt.GenerateToken(userID, username)
+		token, err := s.jwt.GenerateToken(userID, username)
 		if err != nil {
 			return "", fmt.Errorf("не удалось создать токен для пользователя: %w", err)
 		}
@@ -60,7 +60,7 @@ func (a *AuthService) Login(ctx context.Context, username, password string) (str
 		return "", fmt.Errorf("неверный пароль")
 	}
 
-	token, err := a.jwt.GenerateToken(user.ID, user.UserName)
+	token, err := s.jwt.GenerateToken(user.ID, user.UserName)
 	if err != nil {
 		return "", fmt.Errorf("ошибка генерации токена: %w", err)
 	}
