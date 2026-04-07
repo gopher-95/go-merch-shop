@@ -7,7 +7,13 @@ import (
 	"github.com/gopher-95/go-merch-shop/internal/models"
 )
 
-// Структура опсиывает сервис покупки мерча
+type BuyStorage interface {
+	GetUserBalance(ctx context.Context, userID int) (int, error)
+	WithdrawCoins(ctx context.Context, userID int, amount int) error
+	AddToInventory(ctx context.Context, userID int, itemName string) error
+}
+
+// Cервис покупки мерча
 type BuyService struct {
 	storage BuyStorage
 }
@@ -17,12 +23,6 @@ func NewBuyService(storage BuyStorage) *BuyService {
 	return &BuyService{
 		storage: storage,
 	}
-}
-
-type BuyStorage interface {
-	GetUserBalance(ctx context.Context, userID int) (int, error)
-	WithdrawCoins(ctx context.Context, userID int, amount int) error
-	AddToInventory(ctx context.Context, userID int, itemName string) error
 }
 
 func (s *BuyService) BuyMerch(ctx context.Context, userID int, itemName string) error {

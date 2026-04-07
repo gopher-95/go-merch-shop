@@ -3,11 +3,15 @@ package service
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/gopher-95/go-merch-shop/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type UserStorage interface {
+	CreateUser(ctx context.Context, username string, passwordHash string) (int, error)
+	FindByUsername(ctx context.Context, username string) (*models.User, error)
+}
 
 // Сервис авторизации
 type AuthService struct {
@@ -23,15 +27,9 @@ func NewAuthService(storage UserStorage, jwt *JWT) *AuthService {
 	}
 }
 
-type UserStorage interface {
-	CreateUser(ctx context.Context, username string, passwordHash string) (int, error)
-	FindByUsername(ctx context.Context, username string) (*models.User, error)
-}
-
 // Фнукция возвращает токен
 func (s *AuthService) Login(ctx context.Context, username, password string) (string, error) {
 
-	log.Printf("🔵 Login attempt: username=%s", username)
 	user, err := s.storage.FindByUsername(ctx, username)
 	if err != nil {
 		return "", fmt.Errorf("ошибка поиска пользователя: %w", err)

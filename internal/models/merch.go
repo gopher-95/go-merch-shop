@@ -1,5 +1,6 @@
 package models
 
+// Каталог мерча в виде мапы
 var MerchCatalog = map[string]int{
 	"t-shirt":    80,
 	"cup":        20,
@@ -11,8 +12,4 @@ var MerchCatalog = map[string]int{
 	"socks":      10,
 	"wallet":     50,
 	"pink-hoody": 500,
-}
-
-type Inventory struct {
-	
 }

@@ -35,10 +35,12 @@ func main() {
 	jwt := service.NewJWT(cfg.JWTSecret)
 	authService := service.NewAuthService(repo, jwt)
 	buyService := service.NewBuyService(repo)
+	sendService := service.NewSendCoinsService(repo)
 
 	// HTTP слой
 	authHandler := handlers.NewAuthHanlder(authService)
 	buyHandler := handlers.NewBuyHandler(buyService)
+	sendHanlder := handlers.NewSendHandler(sendService)
 
 	// MiddleWare
 	authMiddleware := middleware.NewAuthMiddleware(jwt)
@@ -53,6 +55,7 @@ func main() {
 	router.Group(func(r chi.Router) {
 		r.Use(authMiddleware.Handler)
 		r.Get("/api/buy/{item}", buyHandler.BuyMerch)
+		r.Post("/api/sendCoin", sendHanlder.SendCoins)
 	})
 
 	// Запускаем сервер

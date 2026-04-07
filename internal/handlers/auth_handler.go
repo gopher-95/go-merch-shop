@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gopher-95/go-merch-shop/internal/models"
@@ -11,19 +10,17 @@ import (
 
 // Хэндлер авторизации
 type AuthHandler struct {
-	authService *service.AuthService
+	service *service.AuthService
 }
 
 // Конструктор хэндлера авторизации
 func NewAuthHanlder(authService *service.AuthService) *AuthHandler {
 	return &AuthHandler{
-		authService: authService,
+		service: authService,
 	}
 }
 
-// Хэндлер логинит пользователя
-func (authHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	log.Println("🔵 AuthHandler.Login called")
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		jsonResponseError(w, http.StatusMethodNotAllowed, "неправильный метод запроса")
 		return
@@ -35,7 +32,7 @@ func (authHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := authHandler.authService.Login(r.Context(), authReq.Username, authReq.Password)
+	token, err := h.service.Login(r.Context(), authReq.Username, authReq.Password)
 	if err != nil {
 		jsonResponseError(w, http.StatusUnauthorized, "не получилось авторизоваться")
 		return

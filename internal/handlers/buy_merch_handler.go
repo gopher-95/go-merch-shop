@@ -7,10 +7,12 @@ import (
 	"github.com/gopher-95/go-merch-shop/internal/service"
 )
 
+// Хэндлер покупки мерча
 type BuyHandler struct {
 	service *service.BuyService
 }
 
+// Конструктор хэндлера покупки мерча
 func NewBuyHandler(service *service.BuyService) *BuyHandler {
 	return &BuyHandler{
 		service: service,
