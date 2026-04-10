@@ -61,6 +61,8 @@ func main() {
 		r.Get("/api/info", infoHandler.GetInfo)
 	})
 
+	log.Println("сервер запущен на порту:", cfg.ServerPort)
+
 	// Запускаем сервер
 	server := server.NewServer(cfg.ServerPort, router)
 	if err := server.Run(); err != nil {
