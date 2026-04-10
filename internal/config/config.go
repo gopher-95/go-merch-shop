@@ -25,7 +25,7 @@ func (cfg *Config) DatabaseURLString() string {
 		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName, cfg.DBSSLMode)
 }
 
-// Загрузка конфига
+// Фунцкия загрузки конфига
 func LoadConf() *Config {
 	_ = godotenv.Load()
 
@@ -47,6 +47,7 @@ func LoadConf() *Config {
 	return config
 }
 
+// Функция чтения .env файла
 func getEnv(key, defaultValue string) string {
 	value := os.Getenv(key)
 

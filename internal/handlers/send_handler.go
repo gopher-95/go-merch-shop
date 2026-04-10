@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/gopher-95/go-merch-shop/internal/models"
 	"github.com/gopher-95/go-merch-shop/internal/service"
@@ -20,11 +22,15 @@ func NewSendHandler(service *service.SendCoinsService) *SendHandler {
 	}
 }
 
+// Хэндлер отправки монет
 func (h *SendHandler) SendCoins(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		jsonResponseError(w, http.StatusMethodNotAllowed, "неправильный запрос")
 		return
 	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
 
 	fromUserID, ok := r.Context().Value("userID").(int)
 	if !ok {
@@ -41,6 +47,10 @@ func (h *SendHandler) SendCoins(w http.ResponseWriter, r *http.Request) {
 
 	err := h.service.SendCoins(r.Context(), fromUserID, req.ToUser, req.Amount)
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			jsonResponseError(w, http.StatusGatewayTimeout, "таймаут запроса")
+			return
+		}
 		jsonResponseError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

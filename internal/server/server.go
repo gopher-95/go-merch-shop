@@ -21,6 +21,7 @@ func NewServer(port string, router *chi.Mux) *Server {
 	}
 }
 
+// Функция запуска сервиса
 func (s *Server) Run() error {
 	return s.httpServer.ListenAndServe()
 }

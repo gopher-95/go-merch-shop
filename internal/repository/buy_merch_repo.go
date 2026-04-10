@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Функция получения количества монет
 func (r *Repository) GetUserBalance(ctx context.Context, userID int) (int, error) {
 	query := "SELECT coins FROM users WHERE id = $1"
 
@@ -18,6 +19,7 @@ func (r *Repository) GetUserBalance(ctx context.Context, userID int) (int, error
 	return coins, nil
 }
 
+// Функция списывает со счета монеты
 func (r *Repository) WithdrawCoins(ctx context.Context, userID int, amount int) error {
 	query := "UPDATE users SET coins = coins - $1 WHERE id = $2 AND coins >= $1"
 
@@ -35,6 +37,7 @@ func (r *Repository) WithdrawCoins(ctx context.Context, userID int, amount int) 
 
 }
 
+// Функция добавляет в инвентарь предмет
 func (r *Repository) AddToInventory(ctx context.Context, userID int, itemName string) error {
 	query := `INSERT INTO inventory (user_id, item_name, quantity)
 	          VALUES ($1, $2, 1)

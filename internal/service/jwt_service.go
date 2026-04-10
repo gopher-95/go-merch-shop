@@ -7,16 +7,19 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// Структура содержит JWT секрет
 type JWT struct {
 	secret string
 }
 
+// Конструктор JWT секрета
 func NewJWT(secret string) *JWT {
 	return &JWT{
 		secret: secret,
 	}
 }
 
+// Функция генерирует токен
 func (j *JWT) GenerateToken(userID int, username string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":  userID,
@@ -37,6 +40,7 @@ func (j *JWT) getSecret(token *jwt.Token) (interface{}, error) {
 	return []byte(j.secret), nil
 }
 
+// Функция проверяет токен
 func (j *JWT) Validate(tokenString string) (int, error) {
 	claims := jwt.MapClaims{}
 

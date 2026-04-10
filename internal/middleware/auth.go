@@ -8,16 +8,19 @@ import (
 	"github.com/gopher-95/go-merch-shop/internal/service"
 )
 
+// Структура описывает middleware
 type AuthMiddleWare struct {
 	jwt *service.JWT
 }
 
+// Функция конструктор middlware
 func NewAuthMiddleware(jwt *service.JWT) *AuthMiddleWare {
 	return &AuthMiddleWare{
 		jwt: jwt,
 	}
 }
 
+// Функция реализации middleware
 func (m *AuthMiddleWare) Handler(next http.Handler) http.Handler {
 	handlerFunc := func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")

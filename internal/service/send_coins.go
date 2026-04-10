@@ -25,6 +25,7 @@ func NewSendCoinsService(storage SendStorage) *SendCoinsService {
 	}
 }
 
+// Функция отправки монет пользователю
 func (s *SendCoinsService) SendCoins(ctx context.Context, fromUserID int, toUserName string, amount int) error {
 	toUser, err := s.storage.FindByUsername(ctx, toUserName)
 	if err != nil {

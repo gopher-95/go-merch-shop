@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Функция отправки монет от пользователя к пользователю
 func (r *Repository) TransferCoins(ctx context.Context, fromID, toID, amount int) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {

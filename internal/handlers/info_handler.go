@@ -2,27 +2,26 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/gopher-95/go-merch-shop/internal/service"
 )
 
-// Хэндлер покупки мерча
-type BuyHandler struct {
-	service *service.BuyService
+// Хэндлер описывает получение инфорамции о пользователе
+type InfoHandler struct {
+	service *service.InfoService
 }
 
-// Конструктор хэндлера покупки мерча
-func NewBuyHandler(service *service.BuyService) *BuyHandler {
-	return &BuyHandler{
+// Конструктор хэндлера информации
+func NewInfoHandler(service *service.InfoService) *InfoHandler {
+	return &InfoHandler{
 		service: service,
 	}
 }
 
-// Хэндлер покупки мерча
-func (h *BuyHandler) BuyMerch(w http.ResponseWriter, r *http.Request) {
+func (h *InfoHandler) GetInfo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		jsonResponseError(w, http.StatusMethodNotAllowed, "неправильный метод запроса")
 		return
@@ -37,21 +36,17 @@ func (h *BuyHandler) BuyMerch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item := chi.URLParam(r, "item")
-	if item == "" {
-		jsonResponseError(w, http.StatusBadRequest, "товар не указан")
-		return
-	}
-
-	err := h.service.BuyMerch(ctx, userID, item)
+	info, err := h.service.GetUserInfo(ctx, userID)
 	if err != nil {
 		if ctx.Err() == context.DeadlineExceeded {
 			jsonResponseError(w, http.StatusGatewayTimeout, "таймаут запроса")
+			return
 		}
 		jsonResponseError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("мерч успешно приобретен"))
+	json.NewEncoder(w).Encode(info)
 }

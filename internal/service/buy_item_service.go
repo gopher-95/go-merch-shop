@@ -25,6 +25,7 @@ func NewBuyService(storage BuyStorage) *BuyService {
 	}
 }
 
+// Функция покупки мерча
 func (s *BuyService) BuyMerch(ctx context.Context, userID int, itemName string) error {
 	price, ok := models.MerchCatalog[itemName]
 	if !ok {

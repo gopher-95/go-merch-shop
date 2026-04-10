@@ -4,21 +4,23 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/gopher-95/go-merch-shop/internal/models"
 )
 
+// Репозиторий содержит БД
 type Repository struct {
 	db *sql.DB
 }
 
+// Конструктор репозитория
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
 		db: db,
 	}
 }
 
+// Функция находит в бд пользователя по имени
 func (r *Repository) FindByUsername(ctx context.Context, username string) (*models.User, error) {
 	query := "SELECT id, username, password_hash, coins, created_at FROM users WHERE username = $1 "
 
@@ -42,8 +44,8 @@ func (r *Repository) FindByUsername(ctx context.Context, username string) (*mode
 	return &user, nil
 }
 
+// Функция создает пользователя
 func (r *Repository) CreateUser(ctx context.Context, username string, passwordHash string) (int, error) {
-	log.Printf("🆕 CreateUser: creating %s", username)
 	query := "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id"
 
 	var id int
